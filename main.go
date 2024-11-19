@@ -37,7 +37,7 @@ func requestAttestation(attestationRequest *request.Attestation) ([]byte, error)
 	return res.Attestation.Document, nil
 }
 
-func getBool(env string, defaultValue int) int {
+func getInt(env string, defaultValue int) int {
 	val, err := strconv.Atoi(os.Getenv(env))
 	if nil != err {
 		return defaultValue
@@ -46,15 +46,15 @@ func getBool(env string, defaultValue int) int {
 }
 
 func main() {
-	listenPort := getBool("NITRO_SHIM_PORT", 6000)
-	upstreamHost := fmt.Sprintf("localhost:%d", getBool("NITRO_UPSTREAM_PORT", 6001))
+	listenPort := getInt("NITRO_SHIM_PORT", 6000)
+	upstreamHost := fmt.Sprintf("localhost:%d", getInt("NITRO_UPSTREAM_PORT", 6001))
+	cid := getInt("NITRO_CID", 16)
 
 	if len(os.Args) < 2 {
 		log.Fatalf("Usage: %s <command> [args...]", os.Args[0])
 	}
 
-	//l, err := net.Listen("tcp", fmt.Sprintf(":%d", listenPort))
-	l, err := vsock.Listen(uint32(listenPort), nil)
+	l, err := vsock.ListenContextID(uint32(cid), uint32(listenPort), nil)
 	if err != nil {
 		log.Fatalf("failed vsock.Listen: %s", err)
 		return
