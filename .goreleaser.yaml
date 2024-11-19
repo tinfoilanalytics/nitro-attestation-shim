@@ -1,9 +1,7 @@
 version: 2
 
 builds:
-  - env:
-      - CGO_ENABLED=0
-    goos:
+  - goos:
       - linux
     goarch:
       - amd64

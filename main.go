@@ -14,6 +14,7 @@ import (
 	"github.com/hf/nsm"
 	"github.com/hf/nsm/request"
 	"github.com/mdlayher/vsock"
+	"github.com/vishvananda/netlink"
 )
 
 func requestAttestation(attestationRequest *request.Attestation) ([]byte, error) {
@@ -46,11 +47,30 @@ func getInt(env string, defaultValue int) int {
 	return val
 }
 
+func linkUp() error {
+	lo, err := netlink.LinkByName("lo")
+	if err != nil {
+		return err
+	}
+
+	addr, err := netlink.ParseAddr("127.0.0.1/32")
+	if err != nil {
+		return err
+	}
+
+	return netlink.AddrAdd(lo, addr)
+}
+
 func main() {
 	listenPort := getInt("NITRO_SHIM_PORT", 6000)
 	upstreamHost := fmt.Sprintf("localhost:%d", getInt("NITRO_SHIM_UPSTREAM_PORT", 6001))
 	cid := getInt("NITRO_SHIM_CID", 16)
 	useVsock := os.Getenv("NITRO_SHIM_LOCAL") == ""
+
+	if err := linkUp(); err != nil {
+		log.Fatalf("setting up lo failed: %s", err)
+		return
+	}
 
 	if len(os.Args) < 2 {
 		log.Fatalf("Usage: %s <command> [args...]", os.Args[0])
