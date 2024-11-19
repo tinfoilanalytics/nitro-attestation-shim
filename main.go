@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -47,16 +48,23 @@ func getInt(env string, defaultValue int) int {
 
 func main() {
 	listenPort := getInt("NITRO_SHIM_PORT", 6000)
-	upstreamHost := fmt.Sprintf("localhost:%d", getInt("NITRO_UPSTREAM_PORT", 6001))
-	cid := getInt("NITRO_CID", 16)
+	upstreamHost := fmt.Sprintf("localhost:%d", getInt("NITRO_SHIM_UPSTREAM_PORT", 6001))
+	cid := getInt("NITRO_SHIM_CID", 16)
+	useVsock := os.Getenv("NITRO_SHIM_LOCAL") == ""
 
 	if len(os.Args) < 2 {
 		log.Fatalf("Usage: %s <command> [args...]", os.Args[0])
 	}
 
-	l, err := vsock.ListenContextID(uint32(cid), uint32(listenPort), nil)
+	var l net.Listener
+	var err error
+	if useVsock {
+		l, err = vsock.ListenContextID(uint32(cid), uint32(listenPort), nil)
+	} else {
+		l, err = net.Listen("tcp", fmt.Sprintf(":%d", listenPort))
+	}
 	if err != nil {
-		log.Fatalf("failed vsock.Listen: %s", err)
+		log.Fatalf("listen: %s", err)
 		return
 	}
 	defer l.Close()
