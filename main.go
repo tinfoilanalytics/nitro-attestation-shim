@@ -56,7 +56,6 @@ func linkUp() error {
 func main() {
 	listenPort := getInt("NITRO_SHIM_PORT", 6000)
 	upstreamHost := fmt.Sprintf("localhost:%d", getInt("NITRO_SHIM_UPSTREAM_PORT", 6001))
-	cid := getInt("NITRO_SHIM_CID", 16)
 	useVsock := os.Getenv("NITRO_SHIM_LOCAL") == ""
 
 	if err := linkUp(); err != nil {
@@ -71,7 +70,7 @@ func main() {
 	var l net.Listener
 	var err error
 	if useVsock {
-		l, err = vsock.ListenContextID(uint32(cid), uint32(listenPort), nil)
+		l, err = vsock.Listen(uint32(listenPort), nil)
 	} else {
 		l, err = net.Listen("tcp", fmt.Sprintf(":%d", listenPort))
 	}
