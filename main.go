@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -89,11 +88,9 @@ func main() {
 			return
 		}
 
-		attStr := []byte(base64.StdEncoding.EncodeToString(att))
-
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(attStr)
+		json.NewEncoder(w).Encode(att)
 	})
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
