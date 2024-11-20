@@ -14,7 +14,6 @@ import (
 	"github.com/hf/nsm"
 	"github.com/hf/nsm/request"
 	"github.com/mdlayher/vsock"
-	"github.com/vishvananda/netlink"
 )
 
 func requestAttestation(attestationRequest *request.Attestation) ([]byte, error) {
@@ -48,17 +47,10 @@ func getInt(env string, defaultValue int) int {
 }
 
 func linkUp() error {
-	lo, err := netlink.LinkByName("lo")
-	if err != nil {
+	if err := exec.Command("ip", "addr", "add", "dev", "lo", "127.0.0.1/32").Run(); err != nil {
 		return err
 	}
-
-	addr, err := netlink.ParseAddr("127.0.0.1/32")
-	if err != nil {
-		return err
-	}
-
-	return netlink.AddrAdd(lo, addr)
+	return exec.Command("ip", "link", "set", "lo", "up").Run()
 }
 
 func main() {
