@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net"
@@ -86,7 +88,12 @@ func main() {
 			http.Error(w, fmt.Sprintf("failed to request attestation: %s", err), http.StatusInternalServerError)
 			return
 		}
-		w.Write(att)
+
+		attStr := []byte(base64.StdEncoding.EncodeToString(att))
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(attStr)
 	})
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
