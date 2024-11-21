@@ -58,10 +58,14 @@ func main() {
 	listenPort := getInt("NITRO_SHIM_PORT", 6000)
 	upstreamHost := fmt.Sprintf("localhost:%d", getInt("NITRO_SHIM_UPSTREAM_PORT", 6001))
 	useVsock := os.Getenv("NITRO_SHIM_LOCAL") == ""
+	tlsCertFile := os.Getenv("NITRO_SHIM_TLS_CERT")
+	tlsKeyFile := os.Getenv("NITRO_SHIM_TLS_KEY")
 
-	if err := linkUp(); err != nil {
-		log.Fatalf("setting up lo failed: %s", err)
-		return
+	if useVsock {
+		if err := linkUp(); err != nil {
+			log.Fatalf("setting up lo failed: %s", err)
+			return
+		}
 	}
 
 	if len(os.Args) < 2 {
@@ -101,9 +105,14 @@ func main() {
 		proxy.ServeHTTP(w, r)
 	})
 
-	log.Printf("Starting server on port %d\n", listenPort)
 	go func() {
-		log.Fatal(http.Serve(l, nil))
+		if tlsCertFile != "" && tlsKeyFile != "" {
+			log.Printf("Starting HTTPS server on port %d\n", listenPort)
+			log.Fatal(http.ServeTLS(l, nil, tlsCertFile, tlsKeyFile))
+		} else {
+			log.Printf("Starting HTTP server on port %d\n", listenPort)
+			log.Fatal(http.Serve(l, nil))
+		}
 	}()
 
 	log.Printf("Running command: %s\n", os.Args[1:])
