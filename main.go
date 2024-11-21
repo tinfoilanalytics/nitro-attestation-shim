@@ -1,8 +1,10 @@
 package main
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"golang.org/x/crypto/acme"
 	"log"
 	"net"
 	"net/http"
@@ -15,7 +17,10 @@ import (
 	"github.com/hf/nsm"
 	"github.com/hf/nsm/request"
 	"github.com/mdlayher/vsock"
+	"golang.org/x/crypto/acme/autocert"
 )
+
+var version = "dev"
 
 func requestAttestation(attestationRequest *request.Attestation) ([]byte, error) {
 	sess, err := nsm.OpenDefaultSession()
@@ -58,8 +63,7 @@ func main() {
 	listenPort := getInt("NITRO_SHIM_PORT", 6000)
 	upstreamHost := fmt.Sprintf("localhost:%d", getInt("NITRO_SHIM_UPSTREAM_PORT", 6001))
 	useVsock := os.Getenv("NITRO_SHIM_LOCAL") == ""
-	tlsCertFile := os.Getenv("NITRO_SHIM_TLS_CERT")
-	tlsKeyFile := os.Getenv("NITRO_SHIM_TLS_KEY")
+	tlsDomain := os.Getenv("NITRO_SHIM_TLS_DOMAIN")
 
 	if useVsock {
 		if err := linkUp(); err != nil {
@@ -71,6 +75,8 @@ func main() {
 	if len(os.Args) < 2 {
 		log.Fatalf("Usage: %s <command> [args...]", os.Args[0])
 	}
+
+	log.Printf("Nitro Attestation Shim %s\n", version)
 
 	var l net.Listener
 	var err error
@@ -106,9 +112,29 @@ func main() {
 	})
 
 	go func() {
-		if tlsCertFile != "" && tlsKeyFile != "" {
+		if tlsDomain != "" {
+			certManager := &autocert.Manager{
+				Prompt:     autocert.AcceptTOS,
+				HostPolicy: autocert.HostWhitelist(tlsDomain),
+				Client:     &acme.Client{DirectoryURL: "https://acme-staging-v02.api.letsencrypt.org/directory"},
+			}
+
+			server := &http.Server{
+				Addr: fmt.Sprintf(":%d", listenPort),
+				TLSConfig: &tls.Config{
+					GetCertificate: func(clientHello *tls.ClientHelloInfo) (*tls.Certificate, error) {
+						fmt.Printf("ClientHello: %s %s\n", clientHello.ServerName, clientHello.SupportedProtos)
+						return certManager.GetCertificate(clientHello)
+					},
+					NextProtos: []string{
+						"h2", "http/1.1", // enable HTTP/2
+						acme.ALPNProto, // enable tls-alpn ACME challenges
+					},
+				},
+			}
+
 			log.Printf("Starting HTTPS server on port %d\n", listenPort)
-			log.Fatal(http.ServeTLS(l, nil, tlsCertFile, tlsKeyFile))
+			log.Fatal(server.ServeTLS(l, "", ""))
 		} else {
 			log.Printf("Starting HTTP server on port %d\n", listenPort)
 			log.Fatal(http.Serve(l, nil))
