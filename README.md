@@ -7,7 +7,7 @@ sudo dnf install -y git socat docker aws-nitro-enclaves-cli aws-nitro-enclaves-c
 sudo usermod -aG ne ec2-user
 sudo usermod -aG docker ec2-user
 
-# Increase size
+sudo sed -i 's/^memory.*/memory_mib: 24576/' /etc/nitro_enclaves/allocator.yaml
 
 sudo systemctl enable --now docker
 sudo systemctl enable --now nitro-enclaves-allocator
