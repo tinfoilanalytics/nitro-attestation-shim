@@ -5,7 +5,10 @@ WORKDIR /src
 COPY . /src
 RUN go build -o /app
 
+FROM scratch
+
 COPY --from=shim /nitro-attestation-shim /nitro-attestation-shim
+COPY --from=build /app /app
 
 ENV NITRO_SHIM_PORT=6000
 ENV NITRO_SHIM_UPSTREAM_PORT=80
