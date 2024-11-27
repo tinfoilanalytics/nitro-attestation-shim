@@ -86,7 +86,7 @@ func main() {
 		l, err = net.Listen("tcp", fmt.Sprintf(":%d", listenPort))
 	}
 	if err != nil {
-		log.Fatalf("listen: %s", err)
+		log.Fatalf("outer vsock listener: %s", err)
 		return
 	}
 	defer l.Close()
