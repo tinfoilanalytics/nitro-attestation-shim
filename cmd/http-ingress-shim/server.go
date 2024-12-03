@@ -30,25 +30,11 @@ func newServer(vsockListenPort, httpUpstreamPort uint32) *server {
 	}
 
 	s.mux.HandleFunc("/.well-known/nitro-attestation", func(w http.ResponseWriter, r *http.Request) {
-		att, err := requestAttestation(&request.Attestation{
-			PublicKey: s.pubKey,
-		})
-		if nil != err {
-			http.Error(w, fmt.Sprintf("failed to request attestation: %s", err), http.StatusInternalServerError)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(att)
+		s.handleAttestation(w, r)
 	})
 
 	s.mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		proxy := httputil.NewSingleHostReverseProxy(&url.URL{
-			Scheme: "http",
-			Host:   fmt.Sprintf("localhost:%d", httpUpstreamPort),
-		})
-		proxy.ServeHTTP(w, r)
+		s.handleProxy(w, r)
 	})
 
 	return s
@@ -89,4 +75,44 @@ func (s *server) listenTLS() error {
 	defer l.Close()
 
 	return httpServer.ServeTLS(l, "", "")
+}
+
+func (s *server) handleAttestation(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	att, err := requestAttestation(&request.Attestation{
+		PublicKey: s.pubKey,
+	})
+	if err != nil {
+		http.Error(w, fmt.Sprintf("failed to request attestation: %s", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(att)
+}
+
+func (s *server) handleProxy(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	proxy := httputil.NewSingleHostReverseProxy(&url.URL{
+		Scheme: "http",
+		Host:   fmt.Sprintf("localhost:%d", s.httpUpstreamPort),
+	})
+	proxy.ServeHTTP(w, r)
 }
