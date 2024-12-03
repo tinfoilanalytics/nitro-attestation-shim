@@ -45,12 +45,23 @@ import (
 
 // ProviderServer implements ChallengeProvider for `TLS-ALPN-01` challenge.
 type ProviderServer struct {
-	listener net.Listener
+	vsockListenPort uint32
+	listener        net.Listener
+}
+
+func newProviderServer(vsockListenPort uint32) *ProviderServer {
+	return &ProviderServer{
+		vsockListenPort: vsockListenPort,
+	}
 }
 
 // Present generates a certificate with an SHA-256 digest of the keyAuth provided
 // as the acmeValidation-v1 extension value to conform to the ACME-TLS-ALPN spec.
 func (s *ProviderServer) Present(domain, token, keyAuth string) error {
+	if s.vsockListenPort == 0 {
+		return errors.New("vsockListenPort must be set")
+	}
+
 	// Generate the challenge certificate using the provided keyAuth and domain.
 	cert, err := tlsalpn01.ChallengeCert(domain, keyAuth)
 	if err != nil {
@@ -67,7 +78,7 @@ func (s *ProviderServer) Present(domain, token, keyAuth string) error {
 	// https://www.rfc-editor.org/rfc/rfc8737.html#section-6.2
 	tlsConf.NextProtos = []string{tlsalpn01.ACMETLS1Protocol}
 
-	vsockListener, err := vsock.Listen(cfg.VsockListenPort, nil)
+	vsockListener, err := vsock.Listen(s.vsockListenPort, nil)
 	if err != nil {
 		return fmt.Errorf("creating vsock listener for TLS-ALPN-01: %w", err)
 	}
@@ -81,7 +92,7 @@ func (s *ProviderServer) Present(domain, token, keyAuth string) error {
 		}
 	}()
 
-	log.Print("TLS listener started. Waiting for vsock proxy initialization...")
+	log.Printf("TLS listener started on %d. Waiting for vsock proxy initialization...", s.vsockListenPort)
 	time.Sleep(5 * time.Second)
 	log.Println("Done waiting for vsock proxy initialization. Proceeding with certificate request.")
 

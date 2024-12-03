@@ -55,7 +55,7 @@ func newUser(email string) (*User, error) {
 
 var _ registration.User = &User{}
 
-func requestCertificate(domain string, user *User) (*tls.Certificate, error) {
+func requestCertificate(domain string, user *User, vsockListenPort uint32) (*tls.Certificate, error) {
 	config := lego.NewConfig(user)
 	config.CADirURL = lego.LEDirectoryProduction
 
@@ -65,7 +65,7 @@ func requestCertificate(domain string, user *User) (*tls.Certificate, error) {
 	}
 
 	log.Printf("Setting up TLS-ALPN-01 challenge listener")
-	if err := client.Challenge.SetTLSALPN01Provider(&ProviderServer{}); err != nil {
+	if err := client.Challenge.SetTLSALPN01Provider(newProviderServer(vsockListenPort)); err != nil {
 		return nil, fmt.Errorf("could not set up TLS-ALPN-01 challenge listener: %w", err)
 	}
 

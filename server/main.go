@@ -153,7 +153,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
 	}
-	log.Printf("Loaded config with %d allowed SNIs", len(config.AllowedSNI))
+	log.Printf("Config: %+v", config)
 
 	var port uint32 = 7443
 
