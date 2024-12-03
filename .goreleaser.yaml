@@ -1,7 +1,25 @@
 version: 2
 
 builds:
-  - env:
+  - id: http-ingress-shim
+    main: ./cmd/http-ingress-shim
+    binary: http-ingress-shim
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{ .CommitDate }}
+
+  - id: tls-egress-shim
+    main: ./cmd/tls-egress-shim
+    binary: tls-egress-shim
+    env:
       - CGO_ENABLED=0
     goos:
       - linux
@@ -17,3 +35,6 @@ dockers:
   - image_templates:
       - ghcr.io/tinfoilanalytics/nitro-attestation-shim:latest
       - ghcr.io/tinfoilanalytics/nitro-attestation-shim:{{ .Tag }}
+    ids:
+      - http-ingress-shim
+      - tls-egress-shim

@@ -1,3 +1,4 @@
 FROM scratch
-ENTRYPOINT ["/nitro-attestation-shim"]
-COPY nitro-attestation-shim /
+ENTRYPOINT ["/true"]
+COPY http-ingress-shim /
+COPY tls-egress-shim /
