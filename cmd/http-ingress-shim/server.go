@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
@@ -87,8 +88,10 @@ func (s *server) handleAttestation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fingerprint := sha256.Sum256(s.cert.Leaf.Raw)
 	att, err := requestAttestation(&request.Attestation{
 		PublicKey: s.pubKey,
+		UserData:  fingerprint[:],
 	})
 	if err != nil {
 		http.Error(w, fmt.Sprintf("failed to request attestation: %s", err), http.StatusInternalServerError)
