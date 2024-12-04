@@ -14,7 +14,9 @@ export SHIM_PORT=6000
 export SHIM_UPSTREAM_PORT=8080
 
 /tls-egress-shim &
-/http-ingress-shim &
-sleep 1
+sleep 1 && /http-ingress-shim &
 
+mkdir /tmp/public
+cd /tmp/public
+echo "Hello, World!" > index.html
 python3 -m http.server 8080
