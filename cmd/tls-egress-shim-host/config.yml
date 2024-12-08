@@ -1,3 +1,4 @@
+vsock_port: 7443
 allowed_sni:
   - ipinfo.io
   - acme-staging-v02.api.letsencrypt.org

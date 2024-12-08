@@ -24,7 +24,8 @@ var (
 )
 
 type Config struct {
-	AllowedSNI []string `yaml:"allowed_sni"`
+	VsockListenPort uint32   `yaml:"vsock_port"`
+	AllowedSNI      []string `yaml:"allowed_sni"`
 }
 
 func loadConfig(path string) (*Config, error) {
@@ -155,20 +156,18 @@ func main() {
 	}
 	log.Printf("Config: %+v", config)
 
-	var port uint32 = 7443
-
-	listener, err := vsock.Listen(port, nil)
+	listener, err := vsock.Listen(config.VsockListenPort, nil)
 	if err != nil {
-		log.Fatalf("Failed to listen on vsock port %d: %v", port, err)
+		log.Fatalf("Failed to listen on vsock port %d: %v", config.VsockListenPort, err)
 	}
 	defer listener.Close()
 
-	log.Printf("Listening on vsock port %d", port)
+	log.Printf("Listening on vsock port %d", config.VsockListenPort)
 
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
-			log.Printf("Error accepting connection on port %d: %v", port, err)
+			log.Printf("Error accepting connection on port %d: %v", config.VsockListenPort, err)
 			continue
 		}
 
