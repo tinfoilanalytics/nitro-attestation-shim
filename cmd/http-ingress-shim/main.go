@@ -17,8 +17,6 @@ var (
 var cfg struct {
 	VsockListenPort uint32 `env:"LISTEN_PORT" envDefault:"6000"`
 	UpstreamPort    uint32 `env:"UPSTREAM_PORT" envDefault:"8080"`
-	TLSDomain       string `env:"TLS_DOMAIN"`
-	TLSEmail        string `env:"TLS_EMAIL"`
 }
 
 func main() {
@@ -29,14 +27,13 @@ func main() {
 	}
 	log.Printf("version %s: %+v\n", version, cfg)
 
-	s, err := server.New(cfg.UpstreamPort, attestation.New())
-
-	l, err := vsock.Listen(cfg.VsockListenPort, nil)
+	srv, err := server.New(cfg.UpstreamPort, attestation.New())
+	listener, err := vsock.Listen(cfg.VsockListenPort, nil)
 	if err != nil {
 		log.Fatalf("creating vsock listener: %s", err)
 	}
-	defer l.Close()
+	defer listener.Close()
 
-	log.Printf("Starting HTTPS server on vsock:%d", cfg.VsockListenPort)
-	log.Fatal(s.Serve(l))
+	log.Printf("Starting HTTP server on vsock:%d", cfg.VsockListenPort)
+	log.Fatal(srv.Serve(listener))
 }

@@ -35,7 +35,7 @@ func UnmarshalPubKey(b []byte) (kem.PublicKey, error) {
 	return kemID.Scheme().UnmarshalBinaryPublicKey(b)
 }
 
-// New creates a new HTTP shim Server
+// New creates a new HTTP shim server
 func New(httpUpstreamPort uint32, attestationProvider attestation.Provider) (*Server, error) {
 	pub, priv, err := kemID.Scheme().GenerateKeyPair()
 	if err != nil {
