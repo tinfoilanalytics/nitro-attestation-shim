@@ -1,39 +1,18 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/caarlos0/env/v11"
-	"github.com/hf/nsm"
-	"github.com/hf/nsm/request"
+	"github.com/mdlayher/vsock"
+
+	"github.com/tinfoilanalytics/nitro-attestation-shim/cmd/http-ingress-shim/server"
+	"github.com/tinfoilanalytics/nitro-attestation-shim/pkg/attestation"
 )
 
 var (
 	version = "dev"
 )
-
-func requestAttestation(attestationRequest *request.Attestation) ([]byte, error) {
-	sess, err := nsm.OpenDefaultSession()
-	if nil != err {
-		return nil, err
-	}
-	defer sess.Close()
-
-	res, err := sess.Send(attestationRequest)
-	if nil != err {
-		return nil, err
-	}
-
-	if res.Error != "" {
-		return nil, fmt.Errorf("nsm error: %s", res.Error)
-	}
-	if res.Attestation == nil || res.Attestation.Document == nil {
-		return nil, fmt.Errorf("no attestation document from nsm")
-	}
-
-	return res.Attestation.Document, nil
-}
 
 var cfg struct {
 	VsockListenPort uint32 `env:"LISTEN_PORT" envDefault:"6000"`
@@ -50,13 +29,14 @@ func main() {
 	}
 	log.Printf("version %s: %+v\n", version, cfg)
 
-	s := newServer(cfg.VsockListenPort, cfg.UpstreamPort)
+	s, err := server.New(cfg.UpstreamPort, attestation.New())
 
-	log.Printf("Requesting certificate for %s", cfg.TLSDomain)
-	if err := s.requestCert(cfg.TLSDomain, cfg.TLSEmail); err != nil {
-		log.Fatalf("failed to request certificate: %s", err)
+	l, err := vsock.Listen(cfg.VsockListenPort, nil)
+	if err != nil {
+		log.Fatalf("creating vsock listener: %s", err)
 	}
+	defer l.Close()
 
 	log.Printf("Starting HTTPS server on vsock:%d", cfg.VsockListenPort)
-	log.Fatal(s.listenTLS())
+	log.Fatal(s.Serve(l))
 }
