@@ -1,7 +1,7 @@
-package main
+package tls
 
 import (
-	"flag"
+	"fmt"
 	"log"
 	"net"
 
@@ -11,25 +11,18 @@ import (
 	"github.com/tinfoilanalytics/nitro-attestation-shim/pkg/util"
 )
 
-var version = "dev"
-
-var (
-	listenPort = flag.String("port", ":443", "TCP port to listen on")
-	vsockPort  = flag.Uint("vsock-port", 7443, "vsock port to connect to")
-)
-
-func handleConnection(conn net.Conn) {
+func handleConnection(conn net.Conn, vsockPort uint32) {
 	defer conn.Close()
 	log.Printf("Accepted connection from %v", conn.RemoteAddr())
 
-	vsockConn, err := vsock.Dial(3, uint32(*vsockPort), nil)
+	vsockConn, err := vsock.Dial(3, vsockPort, nil)
 	if err != nil {
-		log.Printf("Failed to connect to vsock port %d: %v", *vsockPort, err)
+		log.Printf("Failed to connect to vsock port %d: %v", vsockPort, err)
 		return
 	}
 	defer vsockConn.Close()
 
-	log.Printf("Connected to vsock port %d", *vsockPort)
+	log.Printf("Connected to vsock port %d", vsockPort)
 	util.CopyBetween(conn, vsockConn)
 	log.Printf("Connection closed")
 }
@@ -64,21 +57,15 @@ func serveDNS() {
 	}
 }
 
-func main() {
-	log.SetPrefix("[tls-egress-shim] ")
-	log.Printf("version %s\n", version)
-
-	flag.Parse()
-
+// Proxy starts a TCP listener and proxies connections to a vsock port
+func Proxy(tcpPort, vsockPort uint32) {
 	go serveDNS()
 
-	listener, err := net.Listen("tcp", *listenPort)
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", tcpPort))
 	if err != nil {
-		log.Fatalf("Failed to listen on %s: %v", *listenPort, err)
+		log.Fatalf("Failed to listen on %s: %v", tcpPort, err)
 	}
 	defer listener.Close()
-
-	log.Printf("Listening on %s, proxying to vsock port %d", *listenPort, *vsockPort)
 
 	for {
 		conn, err := listener.Accept()
@@ -87,6 +74,6 @@ func main() {
 			continue
 		}
 
-		go handleConnection(conn)
+		go handleConnection(conn, vsockPort)
 	}
 }

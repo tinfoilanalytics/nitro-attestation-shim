@@ -1,4 +1,4 @@
-package server
+package http
 
 import (
 	"crypto/x509"
@@ -9,9 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cloudflare/circl/hpke"
-
 	"github.com/blocky/nitrite"
+	"github.com/cloudflare/circl/hpke"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/tinfoilanalytics/nitro-attestation-shim/pkg/attestation"
@@ -20,8 +19,10 @@ import (
 func TestServerNitroAttestation(t *testing.T) {
 	attestationProvider, cert, err := attestation.NewMockAttester()
 	assert.Nil(t, err)
+	att, err := NewAttestationConfig(attestationProvider)
+	assert.Nil(t, err)
 
-	server, err := New(8080, attestationProvider)
+	server, err := New(8080, *att)
 	assert.Nil(t, err)
 	listener, err := net.Listen("tcp", ":8080")
 	assert.Nil(t, err)
