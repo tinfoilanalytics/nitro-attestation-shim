@@ -27,3 +27,9 @@ nitro-cli run-enclave --cpu-count 16 --memory 32G --eif-path "$EXAMPLE_NAME-nitr
 ```bash
 sudo socat tcp-listen:80,reuseaddr,fork vsock-connect:$(nitro-cli describe-enclaves | jq -r '.[0].EnclaveCID'):6000
 ```
+
+## Development
+
+To build a new release, push a new tag using semver (`vX.Y.Z`). GitHub Actions will build and publish the image to `ghcr.io/tinfoilanalytics/nitro-attestation-shim`.
+
+The shim container image doesn't run any code itself, but rather serves as a parent layer for the application specific container image. The shim binary is available at `/nitro-attestation-shim` in the container to copy into your runtime layer. See the [nginx Dockerfile](https://github.com/tinfoilanalytics/nitro-attestation-shim/blob/main/examples/nginx/Dockerfile) for a simple example.
