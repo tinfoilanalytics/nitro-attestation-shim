@@ -26,7 +26,7 @@ nitro-cli run-enclave --cpu-count 16 --memory 32G --eif-path "$EXAMPLE_NAME-nitr
 ## Start socat forwarder
 
 ```bash
-sudo socat tcp-listen:80,reuseaddr,fork vsock-connect:$(nitro-cli describe-enclaves | jq -r '.[0].EnclaveCID'):6000
+sudo socat tcp-listen:80,reuseaddr,fork vsock-connect:$(nitro-cli describe-enclaves | jq -r '.[0].EnclaveCID'):80
 ```
 
 ## Development
