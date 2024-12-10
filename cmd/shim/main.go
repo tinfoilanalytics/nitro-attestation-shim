@@ -17,8 +17,8 @@ import (
 var version = "dev" // set by the build system
 
 var opts struct {
-	Ports            []uint32 `short:"p" description:"list of HTTP ports to expose to the enclave"`
-	HostTLSProxyPort uint32   `long:"c" description:"vsock port to connect to host side proxy"`
+	Ports            []uint32 `short:"p" description:"list of HTTP ports to expose to the enclave, disabled if empty"`
+	HostTLSProxyPort uint32   `long:"c" description:"vsock port to connect to host side proxy, disabled if empty"`
 }
 
 func setupNetworking() error {
@@ -39,10 +39,6 @@ func main() {
 	args, err := flags.ParseArgs(&opts, os.Args)
 	if err != nil {
 		log.Fatalf("parsing flags: %s", err)
-	}
-
-	if opts.HostTLSProxyPort == 0 {
-		opts.HostTLSProxyPort = 7443
 	}
 
 	if err := setupNetworking(); err != nil {
@@ -72,9 +68,11 @@ func main() {
 		log.Printf("HTTP server on vsock:%d started", port)
 	}
 
-	var tcpPort uint32 = 443
-	log.Printf("Listening on %d, proxying to vsock port %d", tcpPort, opts.HostTLSProxyPort)
-	go tls.Proxy(tcpPort, opts.HostTLSProxyPort)
+	if opts.HostTLSProxyPort != 0 {
+		var tcpPort uint32 = 443
+		log.Printf("Listening on %d, proxying to vsock port %d", tcpPort, opts.HostTLSProxyPort)
+		go tls.Proxy(tcpPort, opts.HostTLSProxyPort)
+	}
 
 	// Run command
 	cmd := exec.Command(args[1], args[2:]...)

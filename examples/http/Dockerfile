@@ -11,4 +11,4 @@ RUN apk add iproute2
 COPY --from=shim /shim /nitro-attestation-shim
 COPY --from=build /app /app
 
-ENTRYPOINT ["/nitro-attestation-shim", "-p", "80", "--", "/app"]
+ENTRYPOINT ["/nitro-attestation-shim", "-p", "80", "-c", "7443", "--", "/app"]
