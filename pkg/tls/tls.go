@@ -63,7 +63,7 @@ func Proxy(tcpPort, vsockPort uint32) {
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", tcpPort))
 	if err != nil {
-		log.Fatalf("Failed to listen on %s: %v", tcpPort, err)
+		log.Fatalf("Failed to listen on %d: %v", tcpPort, err)
 	}
 	defer listener.Close()
 
