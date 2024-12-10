@@ -2,7 +2,7 @@ FROM ghcr.io/tinfoilanalytics/nitro-attestation-shim AS shim
 
 FROM ollama/ollama
 
-COPY --from=shim /shim /nitro-attestation-shim
+COPY --from=shim /nitro-attestation-shim /nitro-attestation-shim
 
 RUN apt update -y
 RUN apt install -y iproute2
