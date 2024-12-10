@@ -1,11 +1,14 @@
 FROM ghcr.io/tinfoilanalytics/nitro-attestation-shim AS shim
-FROM alpine:3.20.3
+FROM golang:1.23.3 AS build
 
-RUN apk add iproute2 curl python3
-COPY --from=shim /tls-egress-shim /
-COPY --from=shim /http-ingress-shim /
+COPY main.go .
+RUN CGO_ENABLED=0 go build -o /app main.go
 
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+FROM alpine:3
 
-ENTRYPOINT ["/entrypoint.sh"]
+RUN apk add iproute2
+
+COPY --from=shim /shim /nitro-attestation-shim
+COPY --from=build /app /app
+
+ENTRYPOINT ["/nitro-attestation-shim", "-p", "80", "--", "/app"]

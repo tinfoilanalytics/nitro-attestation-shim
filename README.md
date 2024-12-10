@@ -20,6 +20,7 @@ export EXAMPLE_NAME=nginx
 docker build -t "$EXAMPLE_NAME-nitro" .
 nitro-cli build-enclave --docker-uri "$EXAMPLE_NAME-nitro" --output-file "$EXAMPLE_NAME-nitro".eif
 nitro-cli run-enclave --cpu-count 16 --memory 32G --eif-path "$EXAMPLE_NAME-nitro".eif --debug-mode
+
 ```
 
 ## Start socat forwarder
@@ -33,3 +34,8 @@ sudo socat tcp-listen:80,reuseaddr,fork vsock-connect:$(nitro-cli describe-encla
 To build a new release, push a new tag using semver (`vX.Y.Z`). GitHub Actions will build and publish the image to `ghcr.io/tinfoilanalytics/nitro-attestation-shim`.
 
 The shim container image doesn't run any code itself, but rather serves as a parent layer for the application specific container image. The shim binary is available at `/nitro-attestation-shim` in the container to copy into your runtime layer. See the [nginx Dockerfile](https://github.com/tinfoilanalytics/nitro-attestation-shim/blob/main/examples/nginx/Dockerfile) for a simple example.
+
+
+```bash
+cd ~/nitro-attestation-shim/ && ~/go/bin/goreleaser release --snapshot --clean
+```
