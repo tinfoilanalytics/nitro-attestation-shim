@@ -7,6 +7,7 @@ require (
 	github.com/cloudflare/circl v1.5.0
 	github.com/fxamacker/cbor/v2 v2.7.0
 	github.com/hf/nsm v0.0.0-20220930140112-cd181bd646b9
+	github.com/jessevdk/go-flags v1.6.1
 	github.com/mdlayher/vsock v1.2.1
 	github.com/miekg/dns v1.1.62
 	github.com/stretchr/testify v1.10.0
@@ -16,7 +17,6 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/jessevdk/go-flags v1.6.1 // indirect
 	github.com/mdlayher/socket v0.4.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
