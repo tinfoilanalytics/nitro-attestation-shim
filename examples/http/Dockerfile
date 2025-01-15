@@ -1,4 +1,4 @@
-FROM ghcr.io/tinfoilanalytics/nitro-attestation-shim AS shim
+FROM ghcr.io/tinfoilanalytics/nitro-attestation-shim:v0.1.1 AS shim
 FROM golang:1.23.3 AS build
 
 COPY main.go .
@@ -11,4 +11,4 @@ RUN apk add iproute2
 COPY --from=shim /nitro-attestation-shim /nitro-attestation-shim
 COPY --from=build /app /app
 
-ENTRYPOINT ["/nitro-attestation-shim", "-p", "80", "-c", "7443", "--", "/app"]
+ENTRYPOINT ["/nitro-attestation-shim", "-u", "80", "-c", "7443", "-l", "6000", "--", "/app"]

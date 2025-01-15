@@ -2,7 +2,7 @@
 
 EXAMPLE=$1
 
-docker build -t "$EXAMPLE-nitro" .
+cd $EXAMPLE && docker build -t "$EXAMPLE-nitro" .
 nitro-cli build-enclave \
     --docker-uri "$EXAMPLE-nitro" \
-    --output-file "$EXAMPLE-nitro.eif"
+    --output-file "$EXAMPLE.eif"
