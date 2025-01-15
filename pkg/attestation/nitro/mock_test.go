@@ -42,5 +42,5 @@ func TestMockAttestation(t *testing.T) {
 	measurements, userData, err := attDoc.Verify()
 	assert.Nil(t, err)
 	assert.Equal(t, expectedMeasurements, measurements)
-	assert.Equal(t, userData, userData)
+	assert.Equal(t, expectedUserData, userData)
 }
