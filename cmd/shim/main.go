@@ -71,15 +71,15 @@ func main() {
 		log.Fatalf("requesting TLS certificate: %s", err)
 	}
 
+	go func() {
+		log.Printf("Running command: %v\n", args[1:])
+		cmd := exec.Command(args[1], args[2:]...)
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		log.Fatal(cmd.Run())
+	}()
+
 	log.Printf("Starting HTTPS server on vsock:%d", opts.VSockListenPort)
-	go log.Fatal(srv.Listen())
-
-	log.Printf("Running command: %v\n", args[1:])
-
-	// Run command
-	cmd := exec.Command(args[1], args[2:]...)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	log.Fatal(cmd.Run())
+	log.Fatal(srv.Listen())
 }
