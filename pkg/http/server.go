@@ -83,13 +83,13 @@ func (s *Server) handleAttestation(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *Server) requestCert(domain, email string) error {
+func (s *Server) RequestCert(domain, email, ca string) error {
 	user, err := acme.NewUser(email)
 	if err != nil {
 		return fmt.Errorf("failed to create user: %s", err)
 	}
 
-	s.cert, err = acme.RequestCertificate(domain, user, s.vsockListenPort)
+	s.cert, err = acme.RequestCertificate(domain, ca, user, s.vsockListenPort)
 	if err != nil {
 		return fmt.Errorf("failed to request certificate: %s", err)
 	}

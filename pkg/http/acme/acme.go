@@ -56,9 +56,13 @@ func NewUser(email string) (*User, error) {
 
 var _ registration.User = &User{}
 
-func RequestCertificate(domain string, user *User, vsockListenPort uint32) (*tls.Certificate, error) {
+func RequestCertificate(
+	domain, ca string,
+	user *User,
+	vsockListenPort uint32,
+) (*tls.Certificate, error) {
 	config := lego.NewConfig(user)
-	config.CADirURL = lego.LEDirectoryProduction
+	config.CADirURL = ca
 	client, err := lego.NewClient(config)
 	if err != nil {
 		return nil, fmt.Errorf("could not create lego client: %w", err)
