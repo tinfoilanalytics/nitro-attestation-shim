@@ -3,14 +3,10 @@ package nitro
 import (
 	"bytes"
 	"crypto"
-	"crypto/ecdsa"
-	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/x509"
-	"crypto/x509/pkix"
 	"encoding/base64"
 	"fmt"
-	"math/big"
 	"time"
 
 	"github.com/blocky/nitrite"
@@ -18,6 +14,8 @@ import (
 	"github.com/veraison/go-cose"
 
 	"github.com/tinfoilanalytics/verifier/pkg/attestation"
+
+	"github.com/tinfoilanalytics/nitro-attestation-shim/pkg/util"
 )
 
 type MockProvider struct {
@@ -78,26 +76,9 @@ func (a *MockProvider) RequestAttestation(userData []byte) (*attestation.Documen
 }
 
 func NewMockAttester() (*MockProvider, *x509.Certificate, error) {
-	priv, err := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
+	priv, certDER, err := util.Certificate("Nitro Mock Certificate")
 	if err != nil {
-		return nil, nil, fmt.Errorf("generating key: %w", err)
-	}
-
-	template := &x509.Certificate{
-		SerialNumber: big.NewInt(1),
-		Subject: pkix.Name{
-			CommonName: "Mock Nitro Attestation",
-		},
-		NotBefore:             time.Now(),
-		NotAfter:              time.Now().Add(time.Hour),
-		KeyUsage:              x509.KeyUsageDigitalSignature,
-		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
-		BasicConstraintsValid: true,
-	}
-
-	certDER, err := x509.CreateCertificate(rand.Reader, template, template, &priv.PublicKey, priv)
-	if err != nil {
-		return nil, nil, fmt.Errorf("creating certificate: %w", err)
+		return nil, nil, err
 	}
 
 	cert, err := x509.ParseCertificate(certDER)
