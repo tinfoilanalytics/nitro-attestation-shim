@@ -4,7 +4,6 @@ go 1.23.2
 
 require (
 	github.com/blocky/nitrite v0.0.1
-	github.com/cloudflare/circl v1.5.0
 	github.com/fxamacker/cbor/v2 v2.7.0
 	github.com/go-acme/lego/v4 v4.21.0
 	github.com/hf/nsm v0.0.0-20220930140112-cd181bd646b9
@@ -19,7 +18,6 @@ require (
 )
 
 require (
-	github.com/Masterminds/semver/v3 v3.3.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/go-jose/go-jose/v4 v4.0.4 // indirect
@@ -35,4 +33,4 @@ require (
 	golang.org/x/tools v0.28.0 // indirect
 )
 
-replace github.com/mdlayher/vsock => github.com/natesales/vsock v0.0.0-20241202211744-c23986e4659a
+replace github.com/mdlayher/vsock => github.com/natesales/vsock v0.0.0-20250115072414-5a011980d3ec

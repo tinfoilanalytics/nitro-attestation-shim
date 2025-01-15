@@ -1,11 +1,7 @@
-github.com/Masterminds/semver/v3 v3.3.1 h1:QtNSWtVZ3nBfk8mAOu/B6v7FMJ+NHTIgUPi7rj+4nv4=
-github.com/Masterminds/semver/v3 v3.3.1/go.mod h1:4V+yj/TJE1HU9XfppCwVMZq3I84lprf4nC11bSS5beM=
 github.com/blocky/nitrite v0.0.1 h1:pw3sZWFu5ADubW5JOUI5WM1JJSZZqyGTwn/nMR12DEM=
 github.com/blocky/nitrite v0.0.1/go.mod h1:Ava0jYckAHUqLIeROgFXzqlWJFdf/SdknIDrgmwOhB4=
 github.com/cenkalti/backoff/v4 v4.3.0 h1:MyRJ/UdXutAwSAT+s3wNd7MfTIcy71VQueUuFK343L8=
 github.com/cenkalti/backoff/v4 v4.3.0/go.mod h1:Y3VNntkOUPxTVeUxJ/G5vcM//AlwfmyYozVcomhLiZE=
-github.com/cloudflare/circl v1.5.0 h1:hxIWksrX6XN5a1L2TI/h53AGPhNHoUBo+TD1ms9+pys=
-github.com/cloudflare/circl v1.5.0/go.mod h1:uddAzsPgqdMAYatqJ0lsjX1oECcQLIlRpzZh3pJrofs=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
@@ -27,8 +23,8 @@ github.com/mdlayher/socket v0.4.1 h1:eM9y2/jlbs1M615oshPQOHZzj6R6wMT7bX5NPiQvn2U
 github.com/mdlayher/socket v0.4.1/go.mod h1:cAqeGjoufqdxWkD7DkpyS+wcefOtmu5OQ8KuoJGIReA=
 github.com/miekg/dns v1.1.62 h1:cN8OuEF1/x5Rq6Np+h1epln8OiyPWV+lROx9LxcGgIQ=
 github.com/miekg/dns v1.1.62/go.mod h1:mvDlcItzm+br7MToIKqkglaGhlFMHJ9DTNNWONWXbNQ=
-github.com/natesales/vsock v0.0.0-20241202211744-c23986e4659a h1:AJyw9RpjA/LUbRBE9hs+Mn50TMgZfa7YuL6ATXFbZz4=
-github.com/natesales/vsock v0.0.0-20241202211744-c23986e4659a/go.mod h1:NRfCibel++DgeMD8z/hP+PPTjlNJsdPOmxcnENvE+SE=
+github.com/natesales/vsock v0.0.0-20250115072414-5a011980d3ec h1:A0MpIdc+XhjKSAqe7r8BegeJ2yoU0wVrRmPM9oKVNAU=
+github.com/natesales/vsock v0.0.0-20250115072414-5a011980d3ec/go.mod h1:NRfCibel++DgeMD8z/hP+PPTjlNJsdPOmxcnENvE+SE=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 h1:Jamvg5psRIccs7FGNTlIRMkT8wgtp5eCXdBlqhYGL6U=
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
@@ -38,12 +34,6 @@ github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.10.0 h1:Xv5erBjTwe/5IxqUQTdXv5kgmIvbHo3QQyRwhJsOfJA=
 github.com/stretchr/testify v1.10.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
-github.com/tinfoilanalytics/verifier v0.0.0-20250115055235-3a4073c31ec9 h1:64vc8+x9DpNkex2H+lIgTFDT1ZPX9o6MOc5p52XtNUE=
-github.com/tinfoilanalytics/verifier v0.0.0-20250115055235-3a4073c31ec9/go.mod h1:RKqYphnPRaL2xoxNZPt4ier5eSb/9+OWlwbgQBTFrl8=
-github.com/tinfoilanalytics/verifier v0.0.0-20250115060059-c00ff1fb776a h1:2aU1avG+aFDhqMXijnKMUm+o4LQtGrE/k67DjDYp3Ug=
-github.com/tinfoilanalytics/verifier v0.0.0-20250115060059-c00ff1fb776a/go.mod h1:RKqYphnPRaL2xoxNZPt4ier5eSb/9+OWlwbgQBTFrl8=
-github.com/tinfoilanalytics/verifier v0.0.0-20250115060745-3a75e5f95afe h1:Mxf4PdOgzyLukgqxoMD0+LpAjiP0awkSLP3KGCDgfI8=
-github.com/tinfoilanalytics/verifier v0.0.0-20250115060745-3a75e5f95afe/go.mod h1:RKqYphnPRaL2xoxNZPt4ier5eSb/9+OWlwbgQBTFrl8=
 github.com/tinfoilanalytics/verifier v0.0.0-20250115062353-a98dc5237bc5 h1:JaQekKtv14GBhpgrVfTXGFDxfcvKeH6u7cMi7TkvZr8=
 github.com/tinfoilanalytics/verifier v0.0.0-20250115062353-a98dc5237bc5/go.mod h1:RKqYphnPRaL2xoxNZPt4ier5eSb/9+OWlwbgQBTFrl8=
 github.com/veraison/go-cose v1.2.1 h1:Gj4x20D0YP79J2+cK3anjGEMwIkg2xX+TKVVGUXwNAc=
