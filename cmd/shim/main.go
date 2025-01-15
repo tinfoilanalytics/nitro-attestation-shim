@@ -7,9 +7,8 @@ import (
 	"os/exec"
 
 	"github.com/jessevdk/go-flags"
-	"github.com/mdlayher/vsock"
 
-	"github.com/tinfoilanalytics/nitro-attestation-shim/pkg/attestation"
+	"github.com/tinfoilanalytics/nitro-attestation-shim/pkg/attestation/nitro"
 	"github.com/tinfoilanalytics/nitro-attestation-shim/pkg/http"
 	"github.com/tinfoilanalytics/nitro-attestation-shim/pkg/tls"
 )
@@ -17,8 +16,9 @@ import (
 var version = "dev" // set by the build system
 
 var opts struct {
-	Ports            []uint32 `short:"p" description:"list of HTTP ports to expose to the enclave, disabled if empty"`
-	HostTLSProxyPort uint32   `long:"c" description:"vsock port to connect to host side proxy, disabled if empty"`
+	HostTLSProxyPort uint32 `long:"c" description:"vsock port to connect to host side proxy"`
+	UpstreamPort     uint32 `long:"u" description:"HTTP port to connect to upstream server"`
+	VSockListenPort  uint32 `long:"v" description:"vsock port to listen onn"`
 }
 
 func setupNetworking() error {
@@ -45,34 +45,17 @@ func main() {
 		log.Fatalf("configuring container networking: %s", err)
 	}
 
-	att, err := http.NewAttestationConfig(attestation.New())
+	srv, err := http.New(opts.UpstreamPort, opts.VSockListenPort, nitro.New())
 	if err != nil {
-		log.Fatalf("creating attestation config: %s", err)
+		log.Fatalf("creating HTTP server: %s", err)
 	}
 
-	for _, port := range opts.Ports {
-		srv, err := http.New(port, *att)
-		if err != nil {
-			log.Fatalf("creating HTTP server: %s", err)
-		}
+	log.Printf("Starting HTTPS server on vsock:%d", opts.VSockListenPort)
+	go log.Fatal(srv.Listen())
 
-		listener, err := vsock.Listen(port, nil)
-		if err != nil {
-			log.Fatalf("creating vsock listener: %s", err)
-		}
-
-		log.Printf("Starting HTTP server on vsock:%d", port)
-		go func() {
-			log.Fatal(srv.Serve(listener))
-		}()
-		log.Printf("HTTP server on vsock:%d started", port)
-	}
-
-	if opts.HostTLSProxyPort != 0 {
-		var tcpPort uint32 = 443
-		log.Printf("Listening on %d, proxying to vsock port %d", tcpPort, opts.HostTLSProxyPort)
-		go tls.Proxy(tcpPort, opts.HostTLSProxyPort)
-	}
+	var tcpPort uint32 = 443
+	log.Printf("Listening on %d, proxying to vsock port %d", tcpPort, opts.HostTLSProxyPort)
+	go tls.Proxy(tcpPort, opts.HostTLSProxyPort)
 
 	// Run command
 	cmd := exec.Command(args[1], args[2:]...)
