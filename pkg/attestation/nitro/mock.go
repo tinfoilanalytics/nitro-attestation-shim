@@ -1,4 +1,4 @@
-package attestation
+package nitro
 
 import (
 	"bytes"
@@ -8,14 +8,16 @@ import (
 	"crypto/rand"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"encoding/base64"
 	"fmt"
 	"math/big"
 	"time"
 
 	"github.com/blocky/nitrite"
 	"github.com/fxamacker/cbor/v2"
-	"github.com/hf/nsm/request"
 	"github.com/veraison/go-cose"
+
+	"github.com/tinfoilanalytics/verifier/pkg/attestation"
 )
 
 type MockProvider struct {
@@ -23,9 +25,9 @@ type MockProvider struct {
 	certificate []byte
 }
 
-var _ Provider = (*MockProvider)(nil)
+var _ attestation.Provider = (*MockProvider)(nil)
 
-func (a *MockProvider) RequestAttestation(r *request.Attestation) ([]byte, error) {
+func (a *MockProvider) RequestAttestation(userData []byte) (*attestation.Document, error) {
 	doc := nitrite.Document{
 		ModuleID:  "Mock Module",
 		Timestamp: uint64(time.Now().Unix()),
@@ -37,9 +39,9 @@ func (a *MockProvider) RequestAttestation(r *request.Attestation) ([]byte, error
 		},
 		Certificate: a.certificate,
 		CABundle:    [][]byte{a.certificate},
-		PublicKey:   r.PublicKey,
-		UserData:    r.UserData,
-		Nonce:       r.Nonce,
+		PublicKey:   nil,
+		UserData:    userData,
+		Nonce:       nil,
 	}
 
 	payload, err := cbor.Marshal(doc)
@@ -64,7 +66,15 @@ func (a *MockProvider) RequestAttestation(r *request.Attestation) ([]byte, error
 		return nil, fmt.Errorf("signing message: %w", err)
 	}
 
-	return msg.MarshalCBOR()
+	body, err := msg.MarshalCBOR()
+	if err != nil {
+		return nil, fmt.Errorf("marshaling message: %w", err)
+	}
+
+	return &attestation.Document{
+		Format: attestation.AWSNitroEnclaveV1,
+		Body:   base64.StdEncoding.EncodeToString(body),
+	}, nil
 }
 
 func NewMockAttester() (*MockProvider, *x509.Certificate, error) {
