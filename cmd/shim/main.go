@@ -52,6 +52,10 @@ func main() {
 		log.Fatalf("configuring container networking: %s", err)
 	}
 
+	var tcpPort uint32 = 443
+	log.Printf("Listening on %d, proxying to vsock port %d", tcpPort, opts.HostTLSProxyPort)
+	go tls.Proxy(tcpPort, opts.HostTLSProxyPort)
+
 	srv, err := http.New(opts.UpstreamPort, opts.VSockListenPort, nitro.New())
 	if err != nil {
 		log.Fatalf("creating HTTP server: %s", err)
@@ -70,13 +74,10 @@ func main() {
 	log.Printf("Starting HTTPS server on vsock:%d", opts.VSockListenPort)
 	go log.Fatal(srv.Listen())
 
-	var tcpPort uint32 = 443
-	log.Printf("Listening on %d, proxying to vsock port %d", tcpPort, opts.HostTLSProxyPort)
-	go tls.Proxy(tcpPort, opts.HostTLSProxyPort)
+	log.Printf("Running command: %v\n", args[1:])
 
 	// Run command
 	cmd := exec.Command(args[1], args[2:]...)
-	log.Printf("Running command: %v\n", cmd.Args)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
