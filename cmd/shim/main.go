@@ -16,9 +16,9 @@ import (
 var version = "dev" // set by the build system
 
 var opts struct {
-	HostTLSProxyPort uint32 `long:"c" description:"vsock port to connect to host side proxy"`
-	UpstreamPort     uint32 `long:"u" description:"HTTP port to connect to upstream server"`
-	VSockListenPort  uint32 `long:"v" description:"vsock port to listen onn"`
+	HostTLSProxyPort uint32 `short:"c" description:"vsock port to connect to host side proxy"`
+	UpstreamPort     uint32 `short:"u" description:"HTTP port to connect to upstream server"`
+	VSockListenPort  uint32 `short:"l" description:"vsock port to listen onn"`
 }
 
 func setupNetworking() error {
