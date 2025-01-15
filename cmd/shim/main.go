@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"time"
 
 	"github.com/jessevdk/go-flags"
 
@@ -33,6 +34,8 @@ func setupNetworking() error {
 }
 
 func main() {
+	time.Sleep(1 * time.Second) // Startup delay to allow console attach
+
 	log.SetPrefix("[nitro-attestation-shim] ")
 	log.Printf("Version: %s", version)
 
