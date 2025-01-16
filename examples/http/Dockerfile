@@ -11,4 +11,4 @@ RUN apk add iproute2
 COPY --from=shim /nitro-attestation-shim /nitro-attestation-shim
 COPY --from=build /app /app
 
-ENTRYPOINT ["/nitro-attestation-shim", "-d", "enclave-demo.tinfoil.sh", "-e", "nate@tinfoil.sh", "-u", "80", "-c", "7443", "-l", "443", "--", "/app"]
+ENTRYPOINT ["/nitro-attestation-shim", "-s", "-d", "inference-enclave.tinfoil.sh", "-e", "nate@tinfoil.sh", "-u", "80", "-c", "7443", "-l", "443", "--", "/app"]
