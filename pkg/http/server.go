@@ -64,18 +64,18 @@ func (s *Server) handleProxy(w http.ResponseWriter, r *http.Request) {
 
 	log.Infof("Request: %s", r.URL.Path)
 
-	allowed := false
 	if len(s.proxiedPaths) > 0 {
+		allowed := false
 		for _, path := range s.proxiedPaths {
 			if r.URL.Path == path {
 				allowed = true
 				break
 			}
 		}
-	}
-	if !allowed {
-		http.Error(w, "shim: 403", http.StatusForbidden)
-		return
+		if !allowed {
+			http.Error(w, "shim: 403", http.StatusForbidden)
+			return
+		}
 	}
 
 	proxy := httputil.NewSingleHostReverseProxy(&url.URL{
