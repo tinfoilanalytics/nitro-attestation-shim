@@ -11,6 +11,7 @@ import (
 	"net/url"
 
 	"github.com/mdlayher/vsock"
+	log "github.com/sirupsen/logrus"
 	"github.com/tinfoilanalytics/verifier/pkg/attestation"
 
 	"github.com/tinfoilanalytics/nitro-attestation-shim/pkg/http/acme"
@@ -20,8 +21,9 @@ type Server struct {
 	vsockListenPort  uint32
 	httpUpstreamPort uint32
 
-	mux *http.ServeMux
-	ap  *attestation.Provider
+	mux          *http.ServeMux
+	ap           *attestation.Provider
+	proxiedPaths []string
 
 	cert *tls.Certificate
 }
@@ -30,12 +32,14 @@ type Server struct {
 func New(
 	httpUpstreamPort, vsockListenPort uint32,
 	ap attestation.Provider,
+	proxiedPaths []string,
 ) (*Server, error) {
 	s := &Server{
 		vsockListenPort:  vsockListenPort,
 		httpUpstreamPort: httpUpstreamPort,
 		mux:              http.NewServeMux(),
 		ap:               &ap,
+		proxiedPaths:     proxiedPaths,
 	}
 
 	s.mux.HandleFunc("/.well-known/tinfoil-attestation", s.handleAttestation)
@@ -57,6 +61,22 @@ func cors(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleProxy(w http.ResponseWriter, r *http.Request) {
 	cors(w, r)
+
+	log.Infof("Request: %s", r.URL.Path)
+
+	allowed := false
+	if len(s.proxiedPaths) > 0 {
+		for _, path := range s.proxiedPaths {
+			if r.URL.Path == path {
+				allowed = true
+				break
+			}
+		}
+	}
+	if !allowed {
+		http.Error(w, "shim: 403", http.StatusForbidden)
+		return
+	}
 
 	proxy := httputil.NewSingleHostReverseProxy(&url.URL{
 		Scheme: "http",

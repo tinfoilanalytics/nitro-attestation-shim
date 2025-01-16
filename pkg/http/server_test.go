@@ -22,7 +22,7 @@ func TestServerNitroRemoteAttestation(t *testing.T) {
 	attestationProvider, rootCert, err := nitro.NewMockAttester()
 	assert.Nil(t, err)
 
-	server, err := New(8080, 0, attestationProvider)
+	server, err := New(8080, 0, attestationProvider, []string{})
 	assert.Nil(t, err)
 	listener, err := net.Listen("tcp", "127.0.0.1:8089")
 	assert.Nil(t, err)
