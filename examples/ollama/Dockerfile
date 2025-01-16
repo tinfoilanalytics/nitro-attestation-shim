@@ -1,4 +1,4 @@
-FROM ghcr.io/tinfoilanalytics/nitro-attestation-shim:v0.1.2 AS shim
+FROM ghcr.io/tinfoilanalytics/nitro-attestation-shim:v0.1.3 AS shim
 
 FROM ollama/ollama
 
