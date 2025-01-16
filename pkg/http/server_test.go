@@ -1,7 +1,7 @@
 package http
 
 import (
-	"crypto/md5"
+	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
@@ -42,7 +42,7 @@ func TestServerNitroRemoteAttestation(t *testing.T) {
 	attResp, err := http.Get("https://localhost:8089/.well-known/tinfoil-attestation")
 	assert.Nil(t, err)
 	assert.Equal(t, attResp.StatusCode, http.StatusCreated)
-	certFP := md5.Sum(attResp.TLS.PeerCertificates[0].Raw)
+	certFP := sha256.Sum256(attResp.TLS.PeerCertificates[0].Raw)
 
 	var attDoc attestation.Document
 	assert.Nil(t, json.NewDecoder(attResp.Body).Decode(&attDoc))

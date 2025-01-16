@@ -1,7 +1,7 @@
 package http
 
 import (
-	"crypto/md5"
+	"crypto/sha256"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
@@ -88,7 +88,7 @@ func (s *Server) handleProxy(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleAttestation(w http.ResponseWriter, r *http.Request) {
 	cors(w, r)
 
-	certFP := md5.Sum(s.cert.Leaf.Raw)
+	certFP := sha256.Sum256(s.cert.Certificate[0])
 	att, err := (*s.ap).RequestAttestation(certFP[:])
 	if err != nil {
 		http.Error(w, fmt.Sprintf("failed to request attestation: %s", err), http.StatusInternalServerError)
