@@ -9,8 +9,10 @@ import (
 
 	"github.com/go-acme/lego/v4/lego"
 	"github.com/jessevdk/go-flags"
+	"github.com/mdlayher/vsock"
 
 	"github.com/tinfoilanalytics/nitro-attestation-shim/pkg/attestation/nitro"
+	"github.com/tinfoilanalytics/nitro-attestation-shim/pkg/control"
 	"github.com/tinfoilanalytics/nitro-attestation-shim/pkg/http"
 	"github.com/tinfoilanalytics/nitro-attestation-shim/pkg/tls"
 )
@@ -18,11 +20,9 @@ import (
 var version = "dev" // set by the build system
 
 var opts struct {
-	HostTLSProxyPort uint32   `short:"c" description:"vsock port to connect to host side proxy"`
-	UpstreamPort     uint32   `short:"u" description:"HTTP port to connect to upstream server"`
-	VSockListenPort  uint32   `short:"l" description:"vsock port to listen onn"`
-	Domain           string   `short:"d" description:"TLS domain (include wildcard prefix to request a random subdomain)"`
-	Email            string   `short:"e" description:"TLS account email"`
+	HostTLSProxyPort uint32   `short:"c" description:"vsock port to connect to host side proxy" required:"true"`
+	UpstreamPort     uint32   `short:"u" description:"HTTP port to connect to upstream server" required:"true"`
+	Email            string   `short:"e" description:"TLS account email" required:"true"`
 	StagingCA        bool     `short:"s" description:"Use staging CA"`
 	ProxiedPaths     []string `short:"p" description:"Paths to proxy to the upstream server (all if empty)"`
 }
@@ -41,25 +41,27 @@ func setupNetworking() error {
 func main() {
 	time.Sleep(1 * time.Second) // Startup delay to allow console attach
 
-	log.SetPrefix("[nitro-attestation-shim] ")
-	log.Printf("Version: %s", version)
-
 	args, err := flags.ParseArgs(&opts, os.Args)
 	if err != nil {
 		log.Fatalf("parsing flags: %s", err)
 	}
 
+	log.SetPrefix("[nitro-attestation-shim] ")
+	log.Printf("Version: %s", version)
+
 	if err := setupNetworking(); err != nil {
 		log.Fatalf("configuring container networking: %s", err)
 	}
 
-	var tcpPort uint32 = 443
-	log.Printf("Listening on %d, proxying to vsock port %d", tcpPort, opts.HostTLSProxyPort)
-	go tls.Proxy(tcpPort, opts.HostTLSProxyPort)
+	log.Printf("Starting local TLS proxy towards host vsock:%d", opts.HostTLSProxyPort)
+	go tls.Proxy(443, opts.HostTLSProxyPort)
 
-	domain, err := http.ParseDomain(opts.Domain)
+	srv, err := http.New(
+		opts.UpstreamPort, 443,
+		nitro.New(), opts.ProxiedPaths,
+	)
 	if err != nil {
-		log.Fatalf("parsing domain: %s", err)
+		log.Fatalf("creating HTTP server: %s", err)
 	}
 
 	ca := lego.LEDirectoryProduction
@@ -67,19 +69,20 @@ func main() {
 		ca = lego.LEDirectoryStaging
 	}
 
-	srv, err := http.New(
-		domain, opts.Email, ca,
-		opts.UpstreamPort, opts.VSockListenPort,
-		nitro.New(), opts.ProxiedPaths,
-	)
-	if err != nil {
-		log.Fatalf("creating HTTP server: %s", err)
-	}
-
-	log.Printf("Requesting TLS certificate for %s on behalf of %s from %s", domain, opts.Email, ca)
-	if err := srv.RequestCert(); err != nil {
-		log.Fatalf("requesting TLS certificate: %s", err)
-	}
+	log.Println("Starting control server")
+	controlServer := control.New(func(domain string) error {
+		log.Printf("Requesing TLS certificate for %s on behalf of %s from %s", domain, opts.Email, ca)
+		return srv.RequestCert(domain, opts.Email, ca)
+	})
+	go func() {
+		controlListener, err := vsock.Listen(8080, nil)
+		if err != nil {
+			log.Fatalf("listening on control server: %s", err)
+		}
+		if err := controlServer.Listen(controlListener); err != nil {
+			log.Fatalf("starting control server: %s", err)
+		}
+	}()
 
 	go func() {
 		log.Printf("Running command: %v\n", args[1:])
@@ -90,6 +93,9 @@ func main() {
 		log.Fatal(cmd.Run())
 	}()
 
-	log.Printf("Starting HTTPS server on vsock:%d", opts.VSockListenPort)
+	log.Println("Waiting for control server to signal ready")
+	<-controlServer.Ready
+
+	log.Println("Starting HTTPS server on vsock:443")
 	log.Fatal(srv.Listen())
 }

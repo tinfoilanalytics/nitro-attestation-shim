@@ -22,8 +22,7 @@ func TestServerNitroRemoteAttestation(t *testing.T) {
 	attestationProvider, rootCert, err := nitro.NewMockAttester()
 	assert.Nil(t, err)
 
-	domain := "enclave.example.com"
-	server, err := New(domain, "", "", 8080, 0, attestationProvider, []string{})
+	server, err := New(8080, 0, attestationProvider, []string{})
 	assert.Nil(t, err)
 	listener, err := net.Listen("tcp", "127.0.0.1:8089")
 	assert.Nil(t, err)
@@ -39,14 +38,6 @@ func TestServerNitroRemoteAttestation(t *testing.T) {
 	http.DefaultTransport = &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-
-	// Fetch metadata
-	metaResp, err := http.Get("https://localhost:8089/.well-known/tinfoil-metadata")
-	assert.Nil(t, err)
-	assert.Equal(t, metaResp.StatusCode, http.StatusOK)
-	var meta Metadata
-	assert.Nil(t, json.NewDecoder(metaResp.Body).Decode(&meta))
-	assert.Equal(t, domain, meta.Domain)
 
 	// Fetch remote attestation document
 	attResp, err := http.Get("https://localhost:8089/.well-known/tinfoil-attestation")
