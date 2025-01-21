@@ -21,7 +21,7 @@ var opts struct {
 	HostTLSProxyPort uint32   `short:"c" description:"vsock port to connect to host side proxy"`
 	UpstreamPort     uint32   `short:"u" description:"HTTP port to connect to upstream server"`
 	VSockListenPort  uint32   `short:"l" description:"vsock port to listen onn"`
-	Domain           string   `short:"d" description:"TLS domain"`
+	Domain           string   `short:"d" description:"TLS domain (include wildcard prefix to request a random subdomain)"`
 	Email            string   `short:"e" description:"TLS account email"`
 	StagingCA        bool     `short:"s" description:"Use staging CA"`
 	ProxiedPaths     []string `short:"p" description:"Paths to proxy to the upstream server (all if empty)"`
@@ -57,9 +57,9 @@ func main() {
 	log.Printf("Listening on %d, proxying to vsock port %d", tcpPort, opts.HostTLSProxyPort)
 	go tls.Proxy(tcpPort, opts.HostTLSProxyPort)
 
-	srv, err := http.New(opts.UpstreamPort, opts.VSockListenPort, nitro.New(), opts.ProxiedPaths)
+	domain, err := http.ParseDomain(opts.Domain)
 	if err != nil {
-		log.Fatalf("creating HTTP server: %s", err)
+		log.Fatalf("parsing domain: %s", err)
 	}
 
 	ca := lego.LEDirectoryProduction
@@ -67,8 +67,17 @@ func main() {
 		ca = lego.LEDirectoryStaging
 	}
 
-	log.Printf("Requesting TLS certificate for %s on behalf of %s from %s", opts.Domain, opts.Email, ca)
-	if err := srv.RequestCert(opts.Domain, opts.Email, ca); err != nil {
+	srv, err := http.New(
+		domain, opts.Email, ca,
+		opts.UpstreamPort, opts.VSockListenPort,
+		nitro.New(), opts.ProxiedPaths,
+	)
+	if err != nil {
+		log.Fatalf("creating HTTP server: %s", err)
+	}
+
+	log.Printf("Requesting TLS certificate for %s on behalf of %s from %s", domain, opts.Email, ca)
+	if err := srv.RequestCert(); err != nil {
 		log.Fatalf("requesting TLS certificate: %s", err)
 	}
 

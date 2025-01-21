@@ -18,8 +18,9 @@ import (
 )
 
 type Server struct {
-	vsockListenPort  uint32
-	httpUpstreamPort uint32
+	domain, email, ca string
+	vsockListenPort   uint32
+	httpUpstreamPort  uint32
 
 	mux          *http.ServeMux
 	ap           *attestation.Provider
@@ -28,21 +29,32 @@ type Server struct {
 	cert *tls.Certificate
 }
 
+type Metadata struct {
+	Domain string `json:"domain"`
+}
+
 // New creates a new HTTP shim server
 func New(
+	domain, email, ca string,
 	httpUpstreamPort, vsockListenPort uint32,
 	ap attestation.Provider,
 	proxiedPaths []string,
 ) (*Server, error) {
 	s := &Server{
+		domain: domain,
+		email:  email,
+		ca:     ca,
+
 		vsockListenPort:  vsockListenPort,
 		httpUpstreamPort: httpUpstreamPort,
-		mux:              http.NewServeMux(),
-		ap:               &ap,
-		proxiedPaths:     proxiedPaths,
+
+		mux:          http.NewServeMux(),
+		ap:           &ap,
+		proxiedPaths: proxiedPaths,
 	}
 
 	s.mux.HandleFunc("/.well-known/tinfoil-attestation", s.handleAttestation)
+	s.mux.HandleFunc("/.well-known/tinfoil-metadata", s.handleMeta)
 	s.mux.HandleFunc("/", s.handleProxy)
 
 	return s, nil
@@ -103,13 +115,29 @@ func (s *Server) handleAttestation(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *Server) RequestCert(domain, email, ca string) error {
-	user, err := acme.NewUser(email)
+func (s *Server) handleMeta(w http.ResponseWriter, r *http.Request) {
+	cors(w, r)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	if err := json.NewEncoder(w).Encode(
+		&Metadata{
+			Domain: s.domain,
+		},
+	); err != nil {
+		http.Error(w, fmt.Sprintf("failed to encode meta: %s", err), http.StatusInternalServerError)
+		return
+	}
+}
+
+func (s *Server) RequestCert() error {
+	user, err := acme.NewUser(s.email)
 	if err != nil {
 		return fmt.Errorf("failed to create user: %s", err)
 	}
 
-	s.cert, err = acme.RequestCertificate(domain, ca, user, s.vsockListenPort)
+	s.cert, err = acme.RequestCertificate(s.domain, s.ca, user, s.vsockListenPort)
 	if err != nil {
 		return fmt.Errorf("failed to request certificate: %s", err)
 	}
