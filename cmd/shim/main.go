@@ -19,12 +19,17 @@ import (
 
 var version = "dev" // set by the build system
 
+const (
+	hostProxyPort = 7443
+	controlPort   = 8080
+	tlsPort       = 443
+)
+
 var opts struct {
-	HostTLSProxyPort uint32   `short:"c" description:"vsock port to connect to host side proxy" required:"true"`
-	UpstreamPort     uint32   `short:"u" description:"HTTP port to connect to upstream server" required:"true"`
-	Email            string   `short:"e" description:"TLS account email" required:"true"`
-	StagingCA        bool     `short:"s" description:"Use staging CA"`
-	ProxiedPaths     []string `short:"p" description:"Paths to proxy to the upstream server (all if empty)"`
+	UpstreamPort uint32   `short:"u" long:"upstream" description:"HTTP port to connect to upstream server" required:"true"`
+	Email        string   `short:"e" long:"email" description:"TLS account email" required:"true"`
+	StagingCA    bool     `short:"s" long:"staging-ca" description:"Use staging CA"`
+	ProxiedPaths []string `short:"p" long:"paths" description:"Paths to proxy to the upstream server (all if empty)"`
 }
 
 func setupNetworking() error {
@@ -53,11 +58,11 @@ func main() {
 		log.Fatalf("configuring container networking: %s", err)
 	}
 
-	log.Printf("Starting local TLS proxy towards host vsock:%d", opts.HostTLSProxyPort)
-	go tls.Proxy(443, opts.HostTLSProxyPort)
+	log.Printf("Starting local TLS proxy towards host vsock:%d", hostProxyPort)
+	go tls.Proxy(443, hostProxyPort)
 
 	srv, err := http.New(
-		opts.UpstreamPort, 443,
+		opts.UpstreamPort, tlsPort,
 		nitro.New(), opts.ProxiedPaths,
 	)
 	if err != nil {
@@ -75,7 +80,7 @@ func main() {
 		return srv.RequestCert(domain, opts.Email, ca)
 	})
 	go func() {
-		controlListener, err := vsock.Listen(8080, nil)
+		controlListener, err := vsock.Listen(controlPort, nil)
 		if err != nil {
 			log.Fatalf("listening on control server: %s", err)
 		}
@@ -96,6 +101,6 @@ func main() {
 	log.Println("Waiting for control server to signal ready")
 	<-controlServer.Ready
 
-	log.Println("Starting HTTPS server on vsock:443")
+	log.Printf("Starting HTTPS server on vsock:%d", tlsPort)
 	log.Fatal(srv.Listen())
 }
