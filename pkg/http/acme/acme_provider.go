@@ -30,7 +30,6 @@ import (
 	"net"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/go-acme/lego/v4/challenge/tlsalpn01"
 	"github.com/mdlayher/vsock"
@@ -80,9 +79,7 @@ func (s *ProviderServer) Present(domain, token, keyAuth string) error {
 			log.Println(err)
 		}
 	}()
-	log.Printf("TLS listener started on %d. Waiting for host-side vsock proxy initialization...", s.vsockListenPort)
-	time.Sleep(5 * time.Second)
-	log.Println("Done waiting for vsock proxy initialization. Proceeding with certificate request.")
+	log.Printf("TLS listener started on %d. Requesting certificate", s.vsockListenPort)
 	return nil
 }
 
