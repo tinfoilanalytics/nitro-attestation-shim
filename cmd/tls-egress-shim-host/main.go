@@ -14,7 +14,7 @@ import (
 	"github.com/mdlayher/vsock"
 	"gopkg.in/yaml.v3"
 
-	"github.com/tinfoilanalytics/nitro-attestation-shim/pkg/util"
+	"github.com/tinfoilsh/nitro-attestation-shim/pkg/util"
 )
 
 var version = "dev"

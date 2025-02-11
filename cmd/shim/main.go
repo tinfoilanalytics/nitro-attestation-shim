@@ -11,10 +11,10 @@ import (
 	"github.com/jessevdk/go-flags"
 	"github.com/mdlayher/vsock"
 
-	"github.com/tinfoilanalytics/nitro-attestation-shim/pkg/attestation/nitro"
-	"github.com/tinfoilanalytics/nitro-attestation-shim/pkg/control"
-	"github.com/tinfoilanalytics/nitro-attestation-shim/pkg/http"
-	"github.com/tinfoilanalytics/nitro-attestation-shim/pkg/tls"
+	"github.com/tinfoilsh/nitro-attestation-shim/pkg/attestation/nitro"
+	"github.com/tinfoilsh/nitro-attestation-shim/pkg/control"
+	"github.com/tinfoilsh/nitro-attestation-shim/pkg/http"
+	"github.com/tinfoilsh/nitro-attestation-shim/pkg/tls"
 )
 
 var version = "dev" // set by the build system

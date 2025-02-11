@@ -56,6 +56,6 @@ sudo systemctl enable --now nitro-enclaves-allocator
 
 ## Development
 
-To build a new release, push a new tag using semver (`vX.Y.Z`). GitHub Actions will build and publish the image to `ghcr.io/tinfoilanalytics/nitro-attestation-shim`.
+To build a new release, push a new tag using semver (`vX.Y.Z`). GitHub Actions will build and publish the image to `ghcr.io/tinfoilsh/nitro-attestation-shim`.
 
-The shim container image doesn't run any code itself, but rather serves as a parent layer for the application specific container image. The shim binary is available at `/nitro-attestation-shim` in the container to copy into your runtime layer. See the [nginx Dockerfile](https://github.com/tinfoilanalytics/nitro-attestation-shim/blob/main/examples/nginx/Dockerfile) for a simple example.
+The shim container image doesn't run any code itself, but rather serves as a parent layer for the application specific container image. The shim binary is available at `/nitro-attestation-shim` in the container to copy into your runtime layer. See the [nginx Dockerfile](https://github.com/tinfoilsh/nitro-attestation-shim/blob/main/examples/nginx/Dockerfile) for a simple example.

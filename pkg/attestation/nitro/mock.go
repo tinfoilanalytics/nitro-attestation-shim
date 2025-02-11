@@ -13,9 +13,9 @@ import (
 	"github.com/fxamacker/cbor/v2"
 	"github.com/veraison/go-cose"
 
-	"github.com/tinfoilanalytics/verifier/pkg/attestation"
+	"github.com/tinfoilsh/verifier/pkg/attestation"
 
-	"github.com/tinfoilanalytics/nitro-attestation-shim/pkg/util"
+	"github.com/tinfoilsh/nitro-attestation-shim/pkg/util"
 )
 
 type MockProvider struct {

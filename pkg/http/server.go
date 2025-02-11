@@ -12,9 +12,9 @@ import (
 
 	"github.com/mdlayher/vsock"
 	log "github.com/sirupsen/logrus"
-	"github.com/tinfoilanalytics/verifier/pkg/attestation"
+	"github.com/tinfoilsh/verifier/pkg/attestation"
 
-	"github.com/tinfoilanalytics/nitro-attestation-shim/pkg/http/acme"
+	"github.com/tinfoilsh/nitro-attestation-shim/pkg/http/acme"
 )
 
 type Server struct {

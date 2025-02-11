@@ -8,7 +8,7 @@ import (
 	"github.com/hf/nsm"
 	"github.com/hf/nsm/request"
 
-	"github.com/tinfoilanalytics/verifier/pkg/attestation"
+	"github.com/tinfoilsh/verifier/pkg/attestation"
 )
 
 type Provider struct{}

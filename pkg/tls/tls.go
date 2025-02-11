@@ -8,7 +8,7 @@ import (
 	"github.com/mdlayher/vsock"
 	"github.com/miekg/dns"
 
-	"github.com/tinfoilanalytics/nitro-attestation-shim/pkg/util"
+	"github.com/tinfoilsh/nitro-attestation-shim/pkg/util"
 )
 
 func handleConnection(conn net.Conn, vsockPort uint32) {

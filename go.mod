@@ -1,4 +1,4 @@
-module github.com/tinfoilanalytics/nitro-attestation-shim
+module github.com/tinfoilsh/nitro-attestation-shim
 
 go 1.23.2
 
@@ -12,7 +12,7 @@ require (
 	github.com/miekg/dns v1.1.62
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.10.0
-	github.com/tinfoilanalytics/verifier v0.0.3
+	github.com/tinfoilsh/verifier v0.0.3
 	github.com/veraison/go-cose v1.2.1
 	gopkg.in/yaml.v3 v3.0.1
 )
