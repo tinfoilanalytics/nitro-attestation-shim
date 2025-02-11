@@ -7,7 +7,7 @@ import (
 	"github.com/blocky/nitrite"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/tinfoilsh/verifier/pkg/attestation"
+	"github.com/tinfoilsh/verifier/attestation"
 )
 
 func TestMockAttestation(t *testing.T) {

@@ -8,13 +8,14 @@ import (
 	"time"
 
 	"github.com/go-acme/lego/v4/lego"
-	"github.com/jessevdk/go-flags"
+	flags "github.com/jessevdk/go-flags"
 	"github.com/mdlayher/vsock"
 
-	"github.com/tinfoilsh/nitro-attestation-shim/pkg/attestation/nitro"
 	"github.com/tinfoilsh/nitro-attestation-shim/pkg/control"
 	"github.com/tinfoilsh/nitro-attestation-shim/pkg/http"
 	"github.com/tinfoilsh/nitro-attestation-shim/pkg/tls"
+
+	"github.com/tinfoilsh/nitro-attestation-shim/pkg/attestation/nitro"
 )
 
 var version = "dev" // set by the build system

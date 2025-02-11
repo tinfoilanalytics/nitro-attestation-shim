@@ -11,9 +11,8 @@ import (
 
 	"github.com/blocky/nitrite"
 	"github.com/fxamacker/cbor/v2"
+	"github.com/tinfoilsh/verifier/attestation"
 	"github.com/veraison/go-cose"
-
-	"github.com/tinfoilsh/verifier/pkg/attestation"
 
 	"github.com/tinfoilsh/nitro-attestation-shim/pkg/util"
 )

@@ -12,7 +12,7 @@ import (
 
 	"github.com/mdlayher/vsock"
 	log "github.com/sirupsen/logrus"
-	"github.com/tinfoilsh/verifier/pkg/attestation"
+	"github.com/tinfoilsh/verifier/attestation"
 
 	"github.com/tinfoilsh/nitro-attestation-shim/pkg/http/acme"
 )

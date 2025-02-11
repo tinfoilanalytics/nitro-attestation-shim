@@ -12,10 +12,10 @@ import (
 
 	"github.com/blocky/nitrite"
 	"github.com/stretchr/testify/assert"
-	"github.com/tinfoilsh/nitro-attestation-shim/pkg/util"
-	"github.com/tinfoilsh/verifier/pkg/attestation"
+	"github.com/tinfoilsh/verifier/attestation"
 
 	"github.com/tinfoilsh/nitro-attestation-shim/pkg/attestation/nitro"
+	"github.com/tinfoilsh/nitro-attestation-shim/pkg/util"
 )
 
 func TestServerNitroRemoteAttestation(t *testing.T) {
