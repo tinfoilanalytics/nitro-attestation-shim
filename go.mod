@@ -12,8 +12,6 @@ require (
 	github.com/miekg/dns v1.1.62
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.10.0
-	github.com/tinfoilsh/verifier v0.0.3
-	github.com/veraison/go-cose v1.2.1
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -23,6 +21,7 @@ require (
 	github.com/go-jose/go-jose/v4 v4.0.4 // indirect
 	github.com/mdlayher/socket v0.4.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
+	github.com/tinfoilsh/verifier v0.0.15 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	golang.org/x/crypto v0.32.0 // indirect
 	golang.org/x/mod v0.22.0 // indirect
